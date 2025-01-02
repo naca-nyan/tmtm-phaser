@@ -3,11 +3,13 @@ import { Scene } from "phaser";
 const WIDTH = 900;
 const HEIGHT = 1600;
 const BORDER = 100;
-
+const BALL_RADIUS = 48;
 const BALL_MAX = 60;
 
 type Pointer = Phaser.Input.Pointer;
 type Item = Phaser.Physics.Matter.Image;
+
+const KINDS = ["twitter", "insta", "youtube", "discord", "facebook"] as const;
 
 export class MainGame extends Scene {
   lastCreated = 0;
@@ -20,9 +22,9 @@ export class MainGame extends Scene {
   }
   preload() {
     this.load.setBaseURL("/");
-    this.load.image("twitter", "assets/twitter.png");
-    this.load.audio("drop", "assets/drop.mp3");
-    this.load.audio("spot", "assets/spot.mp3");
+    KINDS.forEach((kind) => this.load.image(kind, `assets/${kind}.png`));
+    this.load.audio("drop", "assets/sounds/drop.mp3");
+    this.load.audio("spot", "assets/sounds/spot.mp3");
   }
 
   makeBall() {
@@ -30,9 +32,9 @@ export class MainGame extends Scene {
       WIDTH / 2 + Phaser.Math.Between(-100, 100),
       100 + Phaser.Math.Between(-50, 50),
     ];
-    const ball = this.matter.add.image(x, y, "twitter");
-    ball.scale = 1.5;
-    ball.setCircle(48);
+    const kind = KINDS[Phaser.Math.Between(0, KINDS.length - 1)];
+    const ball = this.matter.add.image(x, y, kind);
+    ball.setCircle(BALL_RADIUS);
     ball.setInteractive({ draggable: true, dropZone: true });
 
     ball.on("dragstart", () => {
@@ -43,16 +45,15 @@ export class MainGame extends Scene {
       this.sound.play("drop");
     });
     ball.on("dragenter", (_p: Pointer, target: Item) => {
-      if (this.dragging.has(target)) {
-        return;
-      }
+      if (this.dragging.has(target)) return;
+      if (this.prev.texture !== target.texture) return;
       if (
         Phaser.Math.Distance.Between(
           this.prev.x,
           this.prev.y,
           target.x,
           target.y,
-        ) > 150
+        ) > BALL_RADIUS * 3.2
       ) return;
       target.setTint(0x222222);
       this.dragging.add(target);
