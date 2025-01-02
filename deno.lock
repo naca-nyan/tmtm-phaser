@@ -2,6 +2,7 @@
   "version": "4",
   "specifiers": {
     "npm:@deno/vite-plugin@1": "1.0.2_vite@6.0.6",
+    "npm:phaser@^3.87.0": "3.87.0",
     "npm:vite@*": "6.0.6",
     "npm:vite@^6.0.1": "6.0.6"
   },
@@ -177,11 +178,20 @@
         "@esbuild/win32-x64"
       ]
     },
+    "eventemitter3@5.0.1": {
+      "integrity": "sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA=="
+    },
     "fsevents@2.3.3": {
       "integrity": "sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw=="
     },
     "nanoid@3.3.8": {
       "integrity": "sha512-WNLf5Sd8oZxOm+TzppcYk8gVOgP+l58xNy58D0nbUnOxOWRWvlcCV4kUF7ltmI6PsrLl/BgKEyS4mqsGChFN0w=="
+    },
+    "phaser@3.87.0": {
+      "integrity": "sha512-AyI1b3T5fp05gzf6WUmu2FNqaZL+Y7w88yBRLf7YZXF9bncUSHpnDrupnTGoPqy/RKHRLBcay7zWeqQ2wiMWcw==",
+      "dependencies": [
+        "eventemitter3"
+      ]
     },
     "picocolors@1.1.1": {
       "integrity": "sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA=="
@@ -236,6 +246,7 @@
   "workspace": {
     "dependencies": [
       "npm:@deno/vite-plugin@1",
+      "npm:phaser@^3.87.0",
       "npm:vite@^6.0.1"
     ]
   }

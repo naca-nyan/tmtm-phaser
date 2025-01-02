@@ -1,24 +1,28 @@
-import './style.css'
-import typescriptLogo from './typescript.svg'
-import { setupCounter } from './counter'
+import { Game, Types } from "phaser";
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <img src="/vite-deno.svg" alt="Vite with Deno" />
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
+import { MainGame } from "./scenes/MainGame.ts";
+import { MainMenu } from "./scenes/MainMenu.ts";
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+const config: Types.Core.GameConfig = {
+  type: Phaser.AUTO,
+  width: 800,
+  height: 600,
+  parent: "app",
+  backgroundColor: "#028af8",
+  physics: {
+    default: "arcade",
+    arcade: {
+      gravity: { x: 0, y: 200 },
+    },
+  },
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
+  scene: [
+    MainMenu,
+    MainGame,
+  ],
+};
+
+export default new Game(config);
