@@ -21,11 +21,11 @@ export class MainMenu extends Scene {
       blendMode: "ADD",
     });
 
-    const logo = this.physics.add.image(400, 100, "logo");
+    const logo = this.matter.add.image(400, 100, "logo");
 
-    logo.setVelocity(100, 200);
-    logo.setBounce(1, 1);
-    logo.setCollideWorldBounds(true);
+    logo.setVelocity(1, 1);
+    logo.setBounce(0.99999);
+    this.matter.world.setBounds(0, 0, 900, 1600);
 
     particles.startFollow(logo);
     this.input.once("pointerdown", () => {

@@ -1,18 +1,19 @@
 import { Game, Types } from "phaser";
 
+import "./style.css";
 import { MainGame } from "./scenes/MainGame.ts";
-import { MainMenu } from "./scenes/MainMenu.ts";
 
 const config: Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  width: 800,
-  height: 600,
+  width: 900,
+  height: 1600,
   parent: "app",
   backgroundColor: "#028af8",
   physics: {
-    default: "arcade",
-    arcade: {
-      gravity: { x: 0, y: 200 },
+    default: "matter",
+    matter: {
+      gravity: { x: 0, y: 2 },
+      debug: import.meta.env.MODE === "development",
     },
   },
   scale: {
@@ -20,7 +21,6 @@ const config: Types.Core.GameConfig = {
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   scene: [
-    MainMenu,
     MainGame,
   ],
 };
