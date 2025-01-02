@@ -21,6 +21,8 @@ export class MainGame extends Scene {
   preload() {
     this.load.setBaseURL("/");
     this.load.image("twitter", "assets/twitter.png");
+    this.load.audio("drop", "assets/drop.mp3");
+    this.load.audio("spot", "assets/spot.mp3");
   }
 
   makeBall() {
@@ -38,6 +40,7 @@ export class MainGame extends Scene {
       ball.setTint(0x222222);
       this.prev = ball;
       this.dragging = new Set([ball]);
+      this.sound.play("drop");
     });
     ball.on("dragenter", (_p: Pointer, target: Item) => {
       if (this.dragging.has(target)) {
@@ -59,6 +62,7 @@ export class MainGame extends Scene {
         target.x,
         target.y,
       ).stroke();
+      this.sound.play("drop");
       this.prev = target;
     });
     ball.on("dragend", () => {
@@ -68,6 +72,7 @@ export class MainGame extends Scene {
           this.balls.delete(b);
           b.destroy();
         });
+        this.sound.play("spot");
       } else {
         this.dragging.forEach((b) => b.clearTint());
       }
