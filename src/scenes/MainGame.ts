@@ -53,7 +53,7 @@ export class MainGame extends Scene {
           this.prev.y,
           target.x,
           target.y,
-        ) > BALL_RADIUS * 3.2
+        ) > BALL_RADIUS * 3.42
       ) return;
       target.setTint(0x222222);
       this.dragging.add(target);
