@@ -30,7 +30,7 @@ export class MainGame extends Scene {
     super("MainGame");
   }
   preload() {
-    this.load.setBaseURL("/");
+    this.load.setBaseURL(import.meta.env.BASE_URL);
     KINDS.forEach((kind) => this.load.image(kind, `assets/${kind}.png`));
     this.load.audio("drop", "assets/sounds/drop.mp3");
     this.load.audio("spot", "assets/sounds/spot.mp3");

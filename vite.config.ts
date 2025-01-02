@@ -1,7 +1,8 @@
-import { defineConfig } from 'vite'
-import deno from '@deno/vite-plugin'
+import { defineConfig } from "vite";
+import deno from "@deno/vite-plugin";
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: "/tmtm-phaser/",
   plugins: [deno()],
-})
+});

@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly MODE: string;
+  readonly BASE_URL: string;
 }
 
 interface ImportMeta {
