@@ -6,7 +6,7 @@ import { MainGame } from "./scenes/MainGame.ts";
 const config: Types.Core.GameConfig = {
   type: Phaser.AUTO,
   width: 900,
-  height: 1600,
+  height: 1300,
   parent: "app",
   backgroundColor: "#028af8",
   physics: {

@@ -1,7 +1,7 @@
 import { Scene } from "phaser";
 
 const WIDTH = 900;
-const HEIGHT = 1600;
+const HEIGHT = 1300;
 const BORDER = 100;
 const BALL_RADIUS = 48;
 const BALL_MAX = 60;
