@@ -7,7 +7,7 @@ import {
 import { BallLines } from "../components/BallLines.ts";
 import { ScoreText } from "../components/ScoreText.ts";
 
-export const BALL_MAX = 60;
+export const BALL_MAX = 45;
 export const INITIAL_TIME = 60;
 
 export class MainGame extends Phaser.Scene {

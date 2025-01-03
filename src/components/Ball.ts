@@ -1,4 +1,5 @@
-export const RADIUS = 48;
+export const RADIUS = 56;
+const IMAGE_RADIUS = 48;
 export const KINDS = [
   "twitter",
   "insta",
@@ -20,6 +21,7 @@ export class Ball extends Phaser.Physics.Matter.Image {
     const options = {};
     super(world, x, y, kind, frame, options);
     this.scene.add.existing(this);
+    this.scale = RADIUS / IMAGE_RADIUS;
     this.kind = kind;
     this.setCircle(RADIUS);
     this.setInteractive({ draggable: true, dropZone: true });
