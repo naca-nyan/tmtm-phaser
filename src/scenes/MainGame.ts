@@ -1,4 +1,3 @@
-import { Scene } from "phaser";
 import { BORDER, HEIGHT, WIDTH } from "../contants.ts";
 import {
   Ball,
@@ -11,7 +10,7 @@ import { ScoreText } from "../components/ScoreText.ts";
 export const BALL_MAX = 60;
 export const INITIAL_TIME = 60;
 
-export class MainGame extends Scene {
+export class MainGame extends Phaser.Scene {
   scoreText!: ScoreText;
   countdownText!: Phaser.GameObjects.Text;
   state: "in game" | "game over" | "wait for restart" = "in game";
@@ -24,6 +23,7 @@ export class MainGame extends Scene {
   constructor() {
     super("MainGame");
   }
+
   preload() {
     BALL_KINDS.forEach((kind) => this.load.image(kind, `assets/${kind}.png`));
     this.load.audio("drop", "assets/sounds/drop.mp3");
@@ -37,39 +37,39 @@ export class MainGame extends Scene {
     ];
     const kind = BALL_KINDS[Phaser.Math.Between(0, BALL_KINDS.length - 1)];
     const ball = new Ball(this.matter.world, x, y, kind);
-
-    ball.on("dragstart", () => {
-      ball.selected();
-      this.prev = ball;
-      this.dragging = new Set([ball]);
-      this.ballLines.addFollow(ball);
-      this.sound.play("drop");
-    });
-    ball.on("dragenter", (_p: Phaser.Input.Pointer, target: Ball) => {
-      if (this.dragging.has(target)) return;
-      if (this.prev.kind !== target.kind) return;
-      if (this.prev.distance(target) > BALL_RADIUS * 3.42) return;
-      target.selected();
-      this.dragging.add(target);
-      this.ballLines.addFollow(target);
-      this.sound.play("drop");
-      this.prev = target;
-    });
-    ball.on("dragend", () => {
-      if (this.dragging.size >= 3) {
-        this.dragging.forEach((b) => {
-          this.balls.delete(b);
-          b.destroy();
-        });
-        this.scoreText.addScore(Math.pow(this.dragging.size, 3) * 99);
-        this.scoreText.setChainIfMax(this.dragging.size);
-        this.sound.play("spot");
-      } else {
-        this.dragging.forEach((b) => b.selected(false));
-      }
-      this.ballLines.clear();
-    });
     return ball;
+  }
+
+  dragStart(ball: Ball) {
+    ball.selected();
+    this.prev = ball;
+    this.dragging = new Set([ball]);
+    this.ballLines.addFollow(ball);
+    this.sound.play("drop");
+  }
+  dragEnter(target: Ball) {
+    if (this.dragging.has(target)) return;
+    if (this.prev.kind !== target.kind) return;
+    if (this.prev.distance(target) > BALL_RADIUS * 3.42) return;
+    target.selected();
+    this.dragging.add(target);
+    this.ballLines.addFollow(target);
+    this.sound.play("drop");
+    this.prev = target;
+  }
+  dragEnd() {
+    if (this.dragging.size >= 3) {
+      this.dragging.forEach((b) => {
+        this.balls.delete(b);
+        b.destroy();
+      });
+      this.scoreText.addScore(Math.pow(this.dragging.size, 3) * 99);
+      this.scoreText.setChainIfMax(this.dragging.size);
+      this.sound.play("spot");
+    } else {
+      this.dragging.forEach((b) => b.selected(false));
+    }
+    this.ballLines.clear();
   }
 
   create() {
@@ -91,7 +91,13 @@ export class MainGame extends Scene {
       HEIGHT - BORDER,
     );
     this.ballLines = new BallLines(this);
+
+    type P = Phaser.Input.Pointer;
+    this.input.on("dragstart", (_: P, b: Ball) => this.dragStart(b));
+    this.input.on("dragenter", (_: P, _b: Ball, t: Ball) => this.dragEnter(t));
+    this.input.on("dragend", () => this.dragEnd());
   }
+
   override update(time: number, delta: number): void {
     super.update(time, delta);
     this.ballLines.update();
