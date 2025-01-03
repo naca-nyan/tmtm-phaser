@@ -15,11 +15,12 @@ export class MainGame extends Phaser.Scene {
   countdownText!: Phaser.GameObjects.Text;
   state: "in game" | "game over" | "wait for restart" = "in game";
 
-  lastCreated = 0;
   balls: Set<Ball> = new Set();
   dragging: Set<Ball> = new Set();
   prev!: Ball;
   ballLines!: BallLines;
+  ballTimer!: Phaser.Time.TimerEvent;
+
   constructor() {
     super("MainGame");
   }
@@ -31,13 +32,12 @@ export class MainGame extends Phaser.Scene {
   }
 
   makeBall() {
-    const [x, y] = [
-      WIDTH / 2 + Phaser.Math.Between(-100, 100),
-      100 + Phaser.Math.Between(-50, 50),
-    ];
+    if (this.balls.size > BALL_MAX) return;
+    const x = WIDTH / 2 + Phaser.Math.Between(-100, 100);
+    const y = 100 + Phaser.Math.Between(-50, 50);
     const kind = BALL_KINDS[Phaser.Math.Between(0, BALL_KINDS.length - 1)];
     const ball = new Ball(this.matter.world, x, y, kind);
-    return ball;
+    this.balls.add(ball);
   }
 
   dragStart(ball: Ball) {
@@ -63,7 +63,7 @@ export class MainGame extends Phaser.Scene {
         this.balls.delete(b);
         b.destroy();
       });
-      this.scoreText.addScore(Math.pow(this.dragging.size, 3) * 99);
+      this.scoreText.addScore(Math.pow(this.dragging.size, 3) * 43);
       this.scoreText.setChainIfMax(this.dragging.size);
       this.sound.play("spot");
     } else {
@@ -84,33 +84,35 @@ export class MainGame extends Phaser.Scene {
     this.countdownText.depth = 3;
 
     this.add.rectangle(WIDTH / 2, 135, WIDTH, 270, 0x1cb7eb).depth = 2;
-    this.matter.world.setBounds(
-      BORDER,
-      0,
-      WIDTH - BORDER * 2,
-      HEIGHT - BORDER,
-    );
+    this.matter.world.setBounds(BORDER, 0, WIDTH - BORDER * 2, HEIGHT - BORDER);
+
     this.ballLines = new BallLines(this);
 
     type P = Phaser.Input.Pointer;
     this.input.on("dragstart", (_: P, b: Ball) => this.dragStart(b));
     this.input.on("dragenter", (_: P, _b: Ball, t: Ball) => this.dragEnter(t));
     this.input.on("dragend", () => this.dragEnd());
+
+    this.ballTimer = this.time.addEvent({
+      delay: 100,
+      callback: () => {
+        this.makeBall();
+        this.makeBall();
+        this.makeBall();
+      },
+      loop: true,
+    });
   }
 
   override update(time: number, delta: number): void {
     super.update(time, delta);
     this.ballLines.update();
     this.scoreText.update();
-    if (time - this.lastCreated > 10 && this.balls.size < BALL_MAX) {
-      this.lastCreated = time;
-      const b = this.makeBall();
-      this.balls.add(b);
-    }
     const remaining = INITIAL_TIME - (time - this.time.startTime) / 1000;
     const countdown = remaining > 0 ? remaining.toFixed(1) : "Time up!";
     this.countdownText.setText(countdown);
     if (remaining <= 0 && this.state === "in game") {
+      this.ballTimer.remove();
       this.matter.world.setBounds(0, 0, 0, 0, 0, false, false, false, false);
       this.balls.forEach((b) => {
         b.setTint(0x666666);
@@ -126,9 +128,9 @@ export class MainGame extends Phaser.Scene {
         fontFamily: `"Impact", monospace`,
       }).setOrigin();
       this.input.once("pointerdown", () => {
-        this.scene.start("MainGame");
         this.balls.forEach((b) => b.destroy());
         this.balls.clear();
+        this.scene.start("MainGame");
       });
     }
   }
