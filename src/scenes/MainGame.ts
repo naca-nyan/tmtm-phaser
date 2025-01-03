@@ -6,14 +6,17 @@ import {
 } from "../components/Ball.ts";
 import { BallLines } from "../components/BallLines.ts";
 import { ScoreText } from "../components/ScoreText.ts";
+import { TimerText } from "../components/TimerText.ts";
+import { DialogText } from "../components/DialogText.ts";
 
 export const BALL_MAX = 45;
 export const INITIAL_TIME = 60;
 
 export class MainGame extends Phaser.Scene {
   scoreText!: ScoreText;
-  countdownText!: Phaser.GameObjects.Text;
-  state: "in game" | "game over" | "wait for restart" = "in game";
+  timerText!: TimerText;
+  dialogText!: DialogText;
+  state: "ready" | "in game" | "game over" | "wait for restart" = "in game";
 
   balls: Set<Ball> = new Set();
   dragging: Set<Ball> = new Set();
@@ -73,15 +76,11 @@ export class MainGame extends Phaser.Scene {
   }
 
   create() {
-    this.state = "in game";
+    this.state = "ready";
     this.scoreText = new ScoreText(this, 60, 60);
-    this.countdownText = this.add.text(WIDTH - 60, 130, "", {
-      fontSize: 70,
-      fontFamily: `Impact, monospace`,
-      color: "white",
-    });
-    this.countdownText.setOrigin(1, 0);
-    this.countdownText.depth = 3;
+    this.timerText = new TimerText(this, WIDTH - 60, 130, INITIAL_TIME);
+    this.dialogText = new DialogText(this);
+    this.dialogText.setText("Ready...");
 
     this.add.rectangle(WIDTH / 2, 135, WIDTH, 270, 0x1cb7eb).depth = 2;
     this.matter.world.setBounds(BORDER, 0, WIDTH - BORDER * 2, HEIGHT - BORDER);
@@ -102,36 +101,47 @@ export class MainGame extends Phaser.Scene {
       },
       loop: true,
     });
+
+    this.time.addEvent({
+      delay: 3000,
+      callback: () => {
+        this.timerText.start(this.time.now);
+        this.balls.forEach((b) => b.disable(false));
+        this.dialogText.set("Go!", 500);
+        this.state = "in game";
+      },
+    });
   }
 
   override update(time: number, delta: number): void {
     super.update(time, delta);
     this.ballLines.update();
     this.scoreText.update();
-    const remaining = INITIAL_TIME - (time - this.time.startTime) / 1000;
-    const countdown = remaining > 0 ? remaining.toFixed(1) : "Time up!";
-    this.countdownText.setText(countdown);
-    if (remaining <= 0 && this.state === "in game") {
-      this.ballTimer.remove();
-      this.matter.world.setBounds(0, 0, 0, 0, 0, false, false, false, false);
-      this.balls.forEach((b) => {
-        b.setTint(0x666666);
-        this.input.disable(b);
-        this.ballLines.clear();
-      });
+    this.timerText.update(time);
+    this.dialogText.update(time);
+    if (this.state !== "in game") this.balls.forEach((b) => b.disable());
+    if (this.timerText.over && this.state === "in game") {
       this.state = "game over";
+      this.gameover();
     }
-    if (remaining <= -2 && this.state === "game over") {
-      this.state = "wait for restart";
-      this.add.text(WIDTH / 2, HEIGHT / 2 + 100, "Tap to restart!", {
-        fontSize: 80,
-        fontFamily: `"Impact", monospace`,
-      }).setOrigin();
-      this.input.once("pointerdown", () => {
-        this.balls.forEach((b) => b.destroy());
-        this.balls.clear();
-        this.scene.start("MainGame");
-      });
-    }
+  }
+
+  gameover() {
+    this.ballTimer.remove();
+    this.matter.world.setBounds(0, 0, 0, 0, 0, false, false, false, false);
+    this.dialogText.set("Time up!");
+    this.ballLines.clear();
+    this.time.addEvent({
+      delay: 4000,
+      callback: () => {
+        this.state = "wait for restart";
+        this.dialogText.set("Tap to retry!");
+        this.input.once("pointerdown", () => {
+          this.balls.forEach((b) => b.destroy());
+          this.balls.clear();
+          this.scene.start("MainGame");
+        });
+      },
+    });
   }
 }

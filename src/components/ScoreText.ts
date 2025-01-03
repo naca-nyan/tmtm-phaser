@@ -29,8 +29,9 @@ export class ScoreText extends Phaser.GameObjects.Text {
       amount,
       this.score,
     );
-    this.setText(
-      `Score: ${this.scoreDisplay.toLocaleString()}\nChain: ${this.maxChain}`,
-    );
+    this.setText([
+      `Score: ${this.scoreDisplay.toLocaleString()}`,
+      `Chain: ${this.maxChain}`,
+    ]);
   }
 }

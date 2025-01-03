@@ -39,6 +39,16 @@ export class Ball extends Phaser.Physics.Matter.Image {
     }
   }
 
+  disable(disable = true) {
+    if (disable) {
+      this.disableInteractive();
+      this.setTint(0x666666);
+    } else {
+      this.setInteractive();
+      this.clearTint();
+    }
+  }
+
   override destroy(fromScene?: boolean): void {
     super.destroy(fromScene);
   }
