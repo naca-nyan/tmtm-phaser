@@ -5,6 +5,7 @@ import {
   KINDS as BALL_KINDS,
   RADIUS as BALL_RADIUS,
 } from "../components/Ball.ts";
+import { BallLines } from "../components/BallLines.ts";
 
 export const BALL_MAX = 60;
 export const INITIAL_TIME = 60;
@@ -22,7 +23,7 @@ export class MainGame extends Scene {
   balls: Set<Ball> = new Set();
   dragging: Set<Ball> = new Set();
   prev!: Ball;
-  graphics!: Phaser.GameObjects.Graphics;
+  ballLines!: BallLines;
   constructor() {
     super("MainGame");
   }
@@ -42,10 +43,10 @@ export class MainGame extends Scene {
     const ball = new Ball(this.matter.world, x, y, kind);
 
     ball.on("dragstart", () => {
-      this.matter.world.pause();
       ball.selected();
       this.prev = ball;
       this.dragging = new Set([ball]);
+      this.ballLines.addFollow(ball);
       this.sound.play("drop");
     });
     ball.on("dragenter", (_p: Phaser.Input.Pointer, target: Ball) => {
@@ -54,17 +55,11 @@ export class MainGame extends Scene {
       if (this.prev.distance(target) > BALL_RADIUS * 3.42) return;
       target.selected();
       this.dragging.add(target);
-      this.graphics.lineStyle(10, 0xFFFFFF).lineBetween(
-        this.prev.x,
-        this.prev.y,
-        target.x,
-        target.y,
-      ).stroke();
+      this.ballLines.addFollow(target);
       this.sound.play("drop");
       this.prev = target;
     });
     ball.on("dragend", () => {
-      this.matter.world.resume();
       if (this.dragging.size >= 3) {
         this.dragging.forEach((b) => {
           this.balls.delete(b);
@@ -76,7 +71,7 @@ export class MainGame extends Scene {
       } else {
         this.dragging.forEach((b) => b.selected(false));
       }
-      this.graphics.clear();
+      this.ballLines.clear();
     });
     return ball;
   }
@@ -109,11 +104,11 @@ export class MainGame extends Scene {
       WIDTH - BORDER * 2,
       HEIGHT - BORDER,
     );
-    this.graphics = this.add.graphics();
-    this.graphics.depth = 1;
+    this.ballLines = new BallLines(this);
   }
   override update(time: number, delta: number): void {
     super.update(time, delta);
+    this.ballLines.update();
     if (time - this.lastCreated > 10 && this.balls.size < BALL_MAX) {
       this.lastCreated = time;
       const b = this.makeBall();
@@ -139,7 +134,7 @@ export class MainGame extends Scene {
       this.matter.world.setBounds(0, 0, 0, 0, 0, false, false, false, false);
       this.balls.forEach((b) => {
         b.setTint(0x666666);
-        if (!this.dragging.has(b)) this.input.disable(b);
+        this.input.disable(b);
       });
       this.state = "game over";
     }
