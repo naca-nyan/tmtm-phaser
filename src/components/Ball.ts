@@ -50,6 +50,13 @@ export class Ball extends Phaser.Physics.Matter.Image {
   }
 
   override destroy(fromScene?: boolean): void {
+    this.scene.add.particles(this.x, this.y, this.kind, {
+      quantity: 5,
+      lifespan: 500,
+      speed: { random: [0, 100] },
+      scale: { start: 1, end: 0, ease: Phaser.Math.Easing.Expo.Out },
+      blendMode: Phaser.BlendModes.ADD,
+    }).explode();
     super.destroy(fromScene);
   }
 }
