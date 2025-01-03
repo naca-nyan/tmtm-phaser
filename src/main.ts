@@ -2,11 +2,12 @@ import { Game, Types } from "phaser";
 
 import "./style.css";
 import { MainGame } from "./scenes/MainGame.ts";
+import { HEIGHT, WIDTH } from "./contants.ts";
 
 const config: Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  width: 900,
-  height: 1300,
+  width: WIDTH,
+  height: HEIGHT,
   parent: "app",
   backgroundColor: "#028af8",
   physics: {
