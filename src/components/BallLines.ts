@@ -13,8 +13,8 @@ export class BallLines extends GameObjects.Graphics {
     this.scene.add.existing(this);
     this.depth = 1;
   }
-  addFollow(ball: Ball) {
-    this.balls.push(ball);
+  setFollow(balls: Ball[]) {
+    this.balls = balls;
   }
   override clear(): this {
     super.clear();

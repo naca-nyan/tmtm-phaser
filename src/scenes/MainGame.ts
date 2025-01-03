@@ -19,8 +19,7 @@ export class MainGame extends Phaser.Scene {
   state: "ready" | "in game" | "game over" | "wait for restart" = "in game";
 
   balls: Set<Ball> = new Set();
-  dragging: Set<Ball> = new Set();
-  prev!: Ball;
+  dragging: Ball[] = [];
   ballLines!: BallLines;
   ballTimer!: Phaser.Time.TimerEvent;
 
@@ -45,29 +44,36 @@ export class MainGame extends Phaser.Scene {
 
   dragStart(ball: Ball) {
     ball.selected();
-    this.prev = ball;
-    this.dragging = new Set([ball]);
-    this.ballLines.addFollow(ball);
+    this.dragging = [ball];
+    this.ballLines.setFollow(this.dragging);
     this.sound.play("drop");
   }
   dragEnter(target: Ball) {
-    if (this.dragging.has(target)) return;
-    if (this.prev.kind !== target.kind) return;
-    if (this.prev.distance(target) > BALL_RADIUS * 3.42) return;
+    if (this.dragging.length === 0) return;
+    const top = this.dragging[this.dragging.length - 1];
+    if (top.kind !== target.kind) return;
+    if (top.distance(target) > BALL_RADIUS * 3.42) return;
+    if (top === target) return;
+    const prev = this.dragging[this.dragging.length - 2];
+    if (prev && prev === target) {
+      this.dragging.pop()?.selected(false);
+      this.ballLines.setFollow(this.dragging);
+      return;
+    }
+    if (this.dragging.includes(target)) return;
     target.selected();
-    this.dragging.add(target);
-    this.ballLines.addFollow(target);
+    this.dragging.push(target);
+    this.ballLines.setFollow(this.dragging);
     this.sound.play("drop");
-    this.prev = target;
   }
   dragEnd() {
-    if (this.dragging.size >= 3) {
+    if (this.dragging.length >= 3) {
       this.dragging.forEach((b) => {
         this.balls.delete(b);
         b.destroy();
       });
-      this.scoreText.addScore(Math.pow(this.dragging.size, 3) * 43);
-      this.scoreText.setChainIfMax(this.dragging.size);
+      this.scoreText.addScore(Math.pow(this.dragging.length, 3) * 43);
+      this.scoreText.setChainIfMax(this.dragging.length);
       this.sound.play("spot");
     } else {
       this.dragging.forEach((b) => b.selected(false));
