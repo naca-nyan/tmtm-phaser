@@ -88,7 +88,10 @@ export class MainGame extends Phaser.Scene {
     this.dialogText = new DialogText(this);
     this.dialogText.setText("Ready...");
 
-    this.add.rectangle(WIDTH / 2, 135, WIDTH, 270, 0x1cb7eb).depth = 2;
+    this.add.rectangle(0, 0, WIDTH, 270, 0x1cb7eb)
+      .setOrigin(0).depth = 2;
+    const shadow = this.add.rectangle(0, 0, WIDTH, HEIGHT, 0x666666, 0.2)
+      .setOrigin(0);
     this.matter.world.setBounds(BORDER, 0, WIDTH - BORDER * 2, HEIGHT - BORDER);
 
     this.ballLines = new BallLines(this);
@@ -113,6 +116,7 @@ export class MainGame extends Phaser.Scene {
       callback: () => {
         this.timerText.start(this.time.now);
         this.balls.forEach((b) => b.disable(false));
+        shadow.destroy();
         this.dialogText.set("Go!", 500);
         this.state = "in game";
       },
