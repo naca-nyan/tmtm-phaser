@@ -16,7 +16,7 @@ export class MainGame extends Phaser.Scene {
   scoreText!: ScoreText;
   timerText!: TimerText;
   dialogText!: DialogText;
-  state: "ready" | "in game" | "game over" | "wait for restart" = "in game";
+  state: "ready" | "in game" | "game over" | "wait for restart" = "ready";
 
   balls: Set<Ball> = new Set();
   dragging: Ball[] = [];
