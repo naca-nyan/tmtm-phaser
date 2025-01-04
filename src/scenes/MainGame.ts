@@ -85,8 +85,7 @@ export class MainGame extends Phaser.Scene {
     this.state = "ready";
     this.scoreText = new ScoreText(this, 60, 60);
     this.timerText = new TimerText(this, WIDTH - 60, 130, INITIAL_TIME);
-    this.dialogText = new DialogText(this);
-    this.dialogText.setText("Ready...");
+    this.dialogText = new DialogText(this, "Ready...");
 
     this.add.rectangle(0, 0, WIDTH, 270, 0x1cb7eb)
       .setOrigin(0).depth = 2;
@@ -102,19 +101,20 @@ export class MainGame extends Phaser.Scene {
     this.input.on("dragend", () => this.dragEnd());
 
     this.ballTimer = this.time.addEvent({
-      delay: 100,
-      callback: () => {
-        this.makeBall();
-        this.makeBall();
-        this.makeBall();
-      },
+      delay: 33,
+      callback: () => this.makeBall(),
       loop: true,
+    });
+
+    this.timerText.onComplete(() => {
+      this.state = "game over";
+      this.gameover();
     });
 
     this.time.addEvent({
       delay: 3000,
       callback: () => {
-        this.timerText.start(this.time.now);
+        this.timerText.start();
         this.balls.forEach((b) => b.disable(false));
         shadow.destroy();
         this.dialogText.set("Go!", 500);
@@ -126,14 +126,7 @@ export class MainGame extends Phaser.Scene {
   override update(time: number, delta: number): void {
     super.update(time, delta);
     this.ballLines.update();
-    this.scoreText.update();
-    this.timerText.update(time);
-    this.dialogText.update(time);
     if (this.state !== "in game") this.balls.forEach((b) => b.disable());
-    if (this.timerText.over && this.state === "in game") {
-      this.state = "game over";
-      this.gameover();
-    }
   }
 
   gameover() {

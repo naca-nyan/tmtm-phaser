@@ -1,30 +1,30 @@
+const style = {
+  fontSize: 70,
+  fontFamily: `"Impact", sans-serif`,
+  color: "white",
+};
+
 export class TimerText extends Phaser.GameObjects.Text {
-  private duration!: number;
-  private startTime = 0;
-  over = false;
-  started = false;
+  private tween!: Phaser.Tweens.Tween;
   constructor(scene: Phaser.Scene, x: number, y: number, duration: number) {
-    const style = {
-      fontSize: 70,
-      fontFamily: `"Impact", monospace`,
-      color: "white",
-    };
     super(scene, x, y, duration.toFixed(1), style);
-    this.duration = duration;
     this.scene.add.existing(this);
     this.setOrigin(1, 0);
     this.depth = 3;
+    this.tween = this.scene.tweens.addCounter({
+      from: duration,
+      to: 0,
+      duration: duration * 1000,
+      paused: true,
+      onUpdate: (tween) => this.setText(tween.getValue().toFixed(1)),
+    });
   }
-  start(time: number) {
-    this.startTime = time;
-    this.started = true;
+
+  onComplete(f: () => void) {
+    this.tween.on("complete", f);
   }
-  override update(time: number): void {
-    if (!this.started) return;
-    const elapsed = (time - this.startTime) / 1000;
-    const remaining = this.duration - elapsed;
-    this.over = !(remaining > 0);
-    const countdown = Math.max(remaining, 0).toFixed(1);
-    this.setText(countdown);
+
+  start() {
+    this.tween.play();
   }
 }
