@@ -23,6 +23,8 @@ export class MainGame extends Phaser.Scene {
   ballLines!: BallLines;
   ballTimer!: Phaser.Time.TimerEvent;
 
+  bgm!: ReturnType<typeof this.sound.add>;
+
   constructor() {
     super("MainGame");
   }
@@ -31,6 +33,9 @@ export class MainGame extends Phaser.Scene {
     BALL_KINDS.forEach((kind) => this.load.image(kind, `assets/${kind}.png`));
     this.load.audio("drop", "assets/sounds/drop.mp3");
     this.load.audio("spot", "assets/sounds/spot.mp3");
+    this.load.audio("honey-lemon", "assets/sounds/honey-lemon.mp3");
+    this.load.audio("countdown-ready", "assets/sounds/countdown-ready.mp3");
+    this.load.audio("countdown-end", "assets/sounds/countdown-end.mp3");
   }
 
   makeBall() {
@@ -111,9 +116,15 @@ export class MainGame extends Phaser.Scene {
       this.gameover();
     });
 
+    if (!this.bgm) {
+      this.bgm = this.sound.add("honey-lemon", { volume: 0.1, loop: true });
+    }
+    this.sound.play("countdown-ready");
+    this.time.addEvent;
     this.time.addEvent({
-      delay: 3000,
+      delay: 2100,
       callback: () => {
+        if (!this.bgm.isPlaying) this.bgm.play();
         this.timerText.start();
         this.balls.forEach((b) => b.disable(false));
         shadow.destroy();
@@ -139,7 +150,9 @@ export class MainGame extends Phaser.Scene {
       callback: () => {
         this.state = "wait for restart";
         this.dialogText.set("Tap to retry!");
+        this.sound.play("drop");
         this.input.once("pointerdown", () => {
+          this.sound.play("spot");
           this.balls.forEach((b) => b.destroy());
           this.balls.clear();
           this.scene.start("MainGame");

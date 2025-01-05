@@ -18,6 +18,10 @@ export class TimerText extends Phaser.GameObjects.Text {
       paused: true,
       onUpdate: (tween) => this.setText(tween.getValue().toFixed(1)),
     });
+    this.scene.time.addEvent({
+      delay: duration * 1000 - 1000,
+      callback: () => this.scene.sound.play("countdown-end"),
+    });
   }
 
   onComplete(f: () => void) {
