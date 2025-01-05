@@ -1,5 +1,6 @@
 export const RADIUS = 56;
 const IMAGE_RADIUS = 48;
+const SCALE = RADIUS / IMAGE_RADIUS;
 export const KINDS = [
   "twitter",
   "insta",
@@ -11,6 +12,7 @@ export type Kind = typeof KINDS[number];
 
 export class Ball extends Phaser.Physics.Matter.Image {
   readonly kind!: Kind;
+  private tween?: Phaser.Tweens.Tween;
   constructor(
     world: Phaser.Physics.Matter.World,
     x: number,
@@ -32,10 +34,20 @@ export class Ball extends Phaser.Physics.Matter.Image {
   }
 
   selected(selected = true) {
+    const tweenConfig = {
+      targets: this,
+      duration: 200,
+      scale: SCALE * 1.12,
+      ease: Phaser.Math.Easing.Elastic.Out,
+    };
+    if (this.tween) this.tween.destroy();
+
     if (selected) {
       this.setTint(0x222222);
+      this.tween = this.scene.tweens.add(tweenConfig);
     } else {
       this.clearTint();
+      this.tween = this.scene.tweens.add({ ...tweenConfig, scale: SCALE });
     }
   }
 
@@ -50,6 +62,7 @@ export class Ball extends Phaser.Physics.Matter.Image {
   }
 
   override destroy(fromScene?: boolean): void {
+    this.tween?.destroy();
     this.scene.add.particles(this.x, this.y, this.kind, {
       quantity: 5,
       lifespan: 500,

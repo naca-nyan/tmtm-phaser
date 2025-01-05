@@ -146,7 +146,7 @@ export class MainGame extends Phaser.Scene {
     this.dialogText.set("Time up!");
     this.ballLines.clear();
     this.time.addEvent({
-      delay: 4000,
+      delay: 3000,
       callback: () => {
         this.state = "wait for restart";
         this.dialogText.set("Tap to retry!");
